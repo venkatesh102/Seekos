@@ -1,74 +1,90 @@
+import '../Screens/botttomnavigationbatpage.dart';
+// import '../Screens/chat_screen.dart';
+import '../Screens/homescreen.dart';
+import '../Screens/pendingverificationpage.dart';
+import '../Screens/productsdetailspage.dart';
+import '../Screens/profile.dart';
+import '../Screens/sell_subcategory_selectpage.dart';
+import '../Screens/sellerregistrationpage.dart';
+import '../auth_screens/forgotpassword.dart';
+import '../auth_screens/identityverification.dart';
+import '../Screens/category.dart';
+import '../auth_screens/loginpage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:app_frontend/pages/signup.dart';
-import 'package:app_frontend/pages/login.dart';
-import 'package:app_frontend/pages/start.dart';
-import 'package:app_frontend/pages/home.dart';
-import 'package:app_frontend/components/shop.dart';
-import 'package:app_frontend/pages/products/items.dart';
-import 'package:app_frontend/pages/products/subCategory.dart';
-import 'package:app_frontend/pages/shoppingBag.dart';
-import 'package:app_frontend/pages/checkout/addCreditCard.dart';
-import 'package:app_frontend/pages/checkout/paymentMethod.dart';
-import 'package:app_frontend/pages/checkout/shippingAddress.dart';
-import 'package:app_frontend/pages/checkout/shippingMethod.dart';
-import 'package:app_frontend/pages/products/particularItem.dart';
-import 'package:app_frontend/pages/checkout/placeOrder.dart';
-import 'package:app_frontend/pages/profile/userProfile.dart';
-import 'package:app_frontend/pages/profile/editProfile.dart';
-import 'package:app_frontend/pages/profile/setting.dart';
-import 'package:app_frontend/pages/profile/contactUs.dart';
-import 'package:app_frontend/pages/products/wishlist.dart';
-import 'package:app_frontend/components/orders/orderHistory.dart';
-import 'package:app_frontend/pages/onBoardingScreen/onboardingScreen.dart';
-import 'package:app_frontend/pages/adminPanel.dart';
-
-bool firstTime;
-
-Future<void> main() async {
+import 'package:flutter/services.dart';
+import 'Screens/allproductspage.dart';
+import 'Screens/sell_categories_selectpage.dart';
+import 'Screens/subcategories.dart';
+import 'auth_screens/emailverification.dart';
+import 'auth_screens/registrationpage.dart';
+import 'auth_screens/splashscreen.dart';
+import 'package:provider/provider.dart';
+import '../Screens/seeall.dart';
+import 'methods/providerclass.dart';
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  firstTime = (prefs.getBool('initScreen') ?? false);
-  if (!firstTime) {
-    prefs.setBool('initScreen', true);
-  }
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(Main());
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  await Firebase.initializeApp();
+  Provider.debugCheckInvalidValueType=null;
+  runApp(MultiProvider(providers: [Provider(create: (_)=>ProductProvider()),Provider(create: (_)=>CategoryProvider())],child:
+      MaterialApp(debugShowCheckedModeBanner:false,home: MyApp()))
+  );
 }
+void Message(BuildContext context,String message)
+{
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(message),
+    duration: const Duration(seconds: 5),
+    action: SnackBarAction(
+      label: 'ACTION',
+      onPressed: () { },
+    ),
+  ));
+}
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-class Main extends StatelessWidget {
   @override
+  // static const String id='loginpage';
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/onBoarding',
-      routes: {
-        '/': (context) => Start(),
-        '/login': (context) => Login(),
-        '/signup': (context) => SignUp(),
-        '/home': (context) => Home(),
-        '/shop': (context) => Shop(),
-        '/subCategory': (context) => SubCategory(),
-        '/items': (context) => Items(),
-        '/particularItem': (context) => ParticularItem(),
-        '/bag': (context) => ShoppingBag(),
-        '/wishlist': (context) => WishList(),
-        '/checkout/addCreditCard': (context) => AddCreditCard(),
-        '/checkout/address': (context) => ShippingAddress(),
-        '/checkout/shippingMethod': (context) => ShippingMethod(),
-        '/checkout/paymentMethod': (context) => PaymentMethod(),
-        '/checkout/placeOrder': (context) => PlaceOrder(),
-        '/profile': (context) => UserProfile(),
-        '/profile/settings': (context) => ProfileSetting(),
-        '/profile/edit': (context) => EditProfile(),
-        '/profile/contactUs': (context) => ContactUs(),
-        '/placedOrder': (context) => OrderHistory(),
-        "/onBoarding": (context) => OnBoardingScreen(),
-        "/admin": (context) => AdminPanel()
-      },
-      theme: ThemeData(
-          bottomSheetTheme:
-              BottomSheetThemeData(backgroundColor: Colors.white)),
-    );
+        debugShowCheckedModeBanner: false,
+        home: FutureBuilder(future: Future.delayed(Duration(seconds: 6)),
+            builder: (context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SplashScreen();
+              }
+              return MaterialApp(debugShowCheckedModeBanner: false,
+                  home:BottomNavigationBarPage(),
+                  routes: {
+                    RegistrationPage.id: (context) => RegistrationPage(),
+                    Categories.id: (context) => Categories(),
+                    ForgetPassword.id: (context) => ForgetPassword(),
+                    PendingVerification.id: (context) => PendingVerification(),
+                    LivePhotoAuth.id: (context) => LivePhotoAuth(),
+                    HomeScreen.id: (context) => HomeScreen(),
+                    SeeAll.id: (context) => SeeAll(),
+                    SubCategories.id: (context) => SubCategories(),
+                    Profile.id: (context) => Profile(),
+                    VerifyEmailPage.id: (context) => VerifyEmailPage(),
+                    BottomNavigationBarPage.id: (context) =>
+                        BottomNavigationBarPage(),
+                    SellCategoriesSelectPage.id: (context) =>
+                        SellCategoriesSelectPage(),
+                    SellSubCategoriesSelectPage.id: (context) =>
+                        SellSubCategoriesSelectPage(),
+                    SellerRegistration.id: (context) => SellerRegistration(),
+                    AllProducts.id: (context) => AllProducts(),
+                    ProductDetailsPage.id: (context) => ProductDetailsPage(),
+                  });
+            }));
   }
 }
+
+
+
+
+
